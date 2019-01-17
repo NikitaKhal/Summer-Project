@@ -1,0 +1,116 @@
+// File lab_3.cpp
+// Âåòâÿùàÿñÿ ïðîãðàììà
+// Âàðèàíò 19
+// Ýòà ïðîãðàììà âû÷èñëÿåò óñëîâíîå àðèôìåòè÷åñêîå âûðàæåíèå
+//
+//		a/b-1, a<b 
+//	X =	25-a, a=b, ãäå a=a/(19+2) , b=b/(19+3)
+//		(b-5)/a, a>b 
+//
+//  Âûïîëíÿåòñÿ ïðîâåðêà íà ïåðåïîëíåíèå
+//
+// (C) Õàëÿâêèí Í.À., 2017
+//-===================================================================
+#include <stdio.h>
+#include <locale.h>
+
+#define MAX 50
+int mas[MAX][MAX];
+queue<Cell> q;
+ 
+// CanGo return 1 if можно уйти в координаты (i, j) массива
+int CanGo(int i, int j)
+{
+  if ((i < 0) || (i >= n) || (j < 0) || (j >= n)) return 0;
+  if (mas[i][j] != -1) return 0;
+  return 1; // can go
+}
+ 
+// поиск в ширину из начальной точки
+ 
+void bfs(Cell Start)
+{
+  int i = Start.x, j = Start.y;
+  int dx[] = {1,-1,0,0};
+  int dy[] = {0,0,1,-1};
+ 
+  q.push(Start);
+  mas[i][j] = 0;
+ 
+  while(!q.empty())
+  {
+    i = q.front().x; j = q.front().y; q.pop();
+ 
+    // финиш пути
+    if ((i == finish.x) && (j == finish.y)) return;
+ 
+    for(int k = 0; k < 4; k++)
+    {
+      int ii = i + dx[k]; // (i, j) -> (ii, jj)
+      int jj = j + dy[k];
+      if (CanGo(ii,jj))
+      {
+        q.push(Cell(ii,jj));
+        mas[ii][jj] = mas[i][j] + 1;
+      }
+    }
+  }
+}
+ 
+// объявление входных данных и воодим начальную и последнюю пзицию, заполняем массив 
+scanf("%d\n",&n);
+for(i = 0; i < n; i++)
+{
+  for(j = 0; j < n; j++)
+  {
+    scanf("%c",&ch);
+    mas[i][j] = -1;
+    if (ch == '@') // клетка позиции
+      start = Cell(i,j);
+    if (ch == 'X') // конечная позиция
+      finish = Cell(i,j);
+    if (ch == 'O')
+      mas[i][j] = -2; // О это шарик. нельзя двигаться
+  }
+  scanf("\n");
+}
+ 
+// объявление поиска в ширину 
+bfs(start);
+ 
+// если неьзя, то выводим N 
+if (mas[finish.x][finish.y] == -1)
+{
+  printf("N\n");
+  return 0;
+}
+ 
+// вводим путь наш плюсами 
+printf("Y\n");
+i = finish.x;
+j = finish.y;
+int cnt = mas[finish.x][finish.y];
+for(k = 0; k < cnt; k++)
+{
+  int ii = i, jj = j;
+  if ((i > 0) && (mas[i-1][j] == mas[i][j] - 1)) i--; else
+  if ((i < n - 1) && (mas[i+1][j] == mas[i][j] - 1)) i++; else
+  if ((j > 0) && (mas[i][j-1] == mas[i][j] - 1)) j--; else
+  if ((j < n) && (mas[i][j+1] == mas[i][j] - 1)) j++;
+  mas[ii][jj] = -3; // +   
+}
+ 
+// принтеф путя 
+for(i = 0; i < n; i++)
+{
+  for(j = 0; j < n; j++)
+  {
+    char c = '.';
+    if (mas[i][j] == -2) c = 'O';
+    if (mas[i][j] == 0) c = '@';
+    if (mas[i][j] == -3) c = '+';
+    printf("%c",c);
+  }
+  printf("\n");
+}
+ 
